@@ -2,15 +2,16 @@ import os
 from random import randint, choice
 
 class mama:
-    def __init__(self, name) -> None:
-        self.name = name
-        self.hp = 10
-        self.max_hp = 10
+    def __init__(self) -> None:
+        self.name = "mama"
+        self.hp = 0
+        self.max_hp = 0
         self.attack = 0
         self.deffend = 0
         self.mana = 0
-        self.money = 100
-
+        self.money = 0
+        self.right_hand = []
+        self.left_hand = []
         self.inventory = []
     
     def spend_hp(self, damages):
@@ -20,7 +21,7 @@ class mama:
         if self.hp <= self.max_hp:
             print("тут игра должна закончиться")
     
-    def replenishment_mana(mana_plus):
+    def replenishment_mana(self, mana_plus):
         self.mana =+ mana_plus
     
     def show_hero(self) -> None:
@@ -33,192 +34,86 @@ class mama:
         print("")
 
 
-    def buy_item(self, price: int, item: str) -> None:
-        """
-        Покупает предмет item за price монет и кладет его в инвентарь героя
-        """
-        os.system("cls")
-        if self.money >= price:
-            self.money -= price
-            self.inventory.append(item)
-            print(f"{self.name купил {item} за {price} монет!")
-        else:
-            print(f"У {self.name} нет столько монет! Не хватило {price - self.money}")
-        input("\nНажмите ENTER чтобы продолжить ")
-
-
-    def consume_item(hero: list, idx: str) -> None:
-        """
-        Удаляет предмет из инвентаря по индексу и дает герою эффект этого предмета
-        """
-        if idx <= len(self.inventory) - 1 and idx > -1:
-            print(f"{self.name} употребил {self.inventory[idx]}")
-            if self.inventory[idx] == "зелье":
-                self.hp += 10
-                if self.hp > self.max_hp:
-                    self.hp = self.max_hp
-            elif self.inventory[idx] == "яблоко":
-                pass
-            else:
-                print("Никакого эффекта")
-            self.inventory.pop(idx)
-        else:
-            print("Нет такого индекса!")
-        print("")
-
-
-    def play_dice(hero: list, bet: str) -> None:
-        """
-        Ставка от 1 монеты до количества монет героя
-        Игрок и казино бросаю кости, кто больше, то забирает ставку
-        TODO: Как удача влияет на кости?
-        """
-        try:
-            bet = int(bet)
-            except ValueError:
-            print("Ставка недопустима")
-        else:
-            if bet > 0:
-                if self.money >= bet:
-                    hero_score = randint(2, 12)
-                    casino_score = randint(2, 12)
-                    print(f"{self.name} выбросил {hero_score}")
-                    print(f"Трактирщик выбросил {casino_score}")
-                    if hero_score > casino_score:
-                        self.money += bet
-                        print(f"{self.name} выиграл {bet} монет")
-                    elif hero_score < casino_score:
-                        self.money -= bet
-                        print(f"{self.name} проиграл {bet} монет")
-                    else:
-                        print("Ничья!")
-                else:
-                    print(f"У {self.name} нет денег на такую ставку!")
-            else:
-                print("Ставки начинаются от 1 монеты!")
+class Druid(mama):
+    def __init__(self, name) -> None:
+        super().__init__()
+        self.name = name
+    def gen(self):
+        self.hp += 30
+        self.max_hp += 30
+        self.attack += 5
+        self.deffend += 10
+        self.mana += 100
+        self.money += 50
 
 
 
-        input("\nНажмите ENTER чтобы продолжить")
+class wielder_of_magic(mama):
+    def __init__(self, name) -> None:
+        super().__init__()
+        self.name = name
+    def gen(self):
+        self.hp += 10
+        self.max_hp += 15
+        self.attack += 10
+        self.deffend += 0
+        self.mana += 500
+        self.money += 10
 
 
-    def combat_turn(attacker, defender):
-        if attacker[1] > 0:
-            damage = attacker[6]
-            defender[1] -= damage
-            print(f"{attacker[0]} ударил {defender[0]} на {damage} жизней!")
+class knight(mama):
+    def __init__(self, name) -> None:
+        super().__init__()
+        self.name = name
+    def gen(self):
+        self.hp += 30
+        self.max_hp += 30
+        self.attack += 5
+        self.deffend += 10
+        self.mana += 20
+        self.money += 50
 
 
-    def start_fight(hero: list) -> None:
-        """
-        Зависит ли враг от уровня героя?
-        Формула аткаи и защиты?
-        Можно ли выпить зелье в бою?
-        """
-        enemy = make_hero(hp_now=30, xp_now=123, inventory=["вражеский меч", "вражеский конь"])
-        while self.hp > 0 and enemy[1] > 0:
-            os.system("cls")
-            combat_turn(hero, enemy)
-            combat_turn(enemy, hero)
-            print("")
-            show_hero(hero)
-            show_hero(enemy)
-            input("\nНажмите ENTER чтобы сделать следующий ход")
-        count_fight_result(hero, enemy)
+p1 = wielder_of_magic("Фокусник")
+p1.gen()
+p1.show_hero()
+
+p2 = knight("Жонглер")
+p2.gen()
+p2.show_hero()
 
 
-    def count_fight_result(hero, enemy):
-        os.system("cls")
-        if self.hp > 0 and enemy[1] <= 0:
-            print(f"{self.name} победил и получает в награду:")
-            self.money += enemy[9]
-            print(enemy[9], "монет")
-            print("и предметы: ", end="")
-            for item in enemy[10]:
-                print(item, end=", ")
-            self.inventory += enemy[10]
-            levelup(hero)
-        elif self.hp <= 0 and enemy[1] > 0:
-            print(f"{enemy[0]} победил!")
-            print("Игра должна закончиться тут!")
-        else:
-            print(f"{self.name} и {enemy[0]} пали в бою:(")
-            print("Игра должна закончиться тут!")
+def fight(p1, p2):
+    print(" ")
+    print("здоровье игрока ", p1.name, "; ", p1.hp, "/", p1.max_hp)
+    print("здоровье игрока ", p2.name, "; ", p2.hp, "/", p2.max_hp)
+    q = True
+    while q:
+        print("здоровье игрока ", p1.name, "; ", p1.hp, "/", p1.max_hp)
+        print("здоровье игрока ", p2.name, "; ", p2.hp, "/", p2.max_hp)
+
+        x = p1.deffend - p2.attack
+        if x < 0:
+            print("мимо")
+            p1.hp += x
+        print(x)
+        x = p2.deffend - p1.attack
+        if x < 0:
+            print("мимо")
+            p2.hp += x
+        print(x)
+        if p1.hp <= 0:
+            print("игра оконченна игрок ", p1.name)
+            q = False
+        if p2.hp <= 0:
+            print("игра оконченна игрок ", p2.name)
+            q = False
+        input()
+    print(" ")
 
 
-    def choose_option(hero: list, text: str, options: list) -> int:
-        """
-        Показывает описание ситуации
-        Показывает варианты
-        Получает ввод пользователя
-        Проверяет ввод и возвращает его, если он есть в вариантах
-        """
-        os.system("cls")
-        show_hero(hero)
-        print(text)
-        for num, option in enumerate(options):
-            print(f"{num}. {option}")
-        option = input("\nВведите номер варианта и нажмите ENTER: ")
-        try:
-            option = int(option)
-        except:  # выполнится, если try не получится
-            print("Ввод должен быть целым неотрицательным числом")
-        else:  # выполнится, если try удался
-            if option < len(options) and option > -1:
-                return option
-            else:
-                print("Нет такого выбора")
 
+fight(p1, p2)
 
-    def visit_hub(hero):
-        text = f"{self.name} приехал к Хаб, здесь есть чем заняться:"
-        options = [
-            "заглянуть в лавку алхимика",
-            "пойти в казино",
-            "выйти в главное меню",
-        ]
-        option = choose_option(hero, text, options)
-        os.system("cls")
-        if option == 0:
-            return visit_shop(hero)
-        elif option == 1:
-            return visit_casino(hero)
-        elif option == 2:
-            print("ушел в меню -почти-")
-        elif option == 3:
-            consume_item(hero, 0)
-        input("\nНажмите ENTER чтобы продолжить")
-
-
-    def visit_shop(hero:list) -> None:
-        text = f"{self.name} приехал в лавку алхимика. здесь странно пахнет и продаются зелья. "
-        options = ["купить зелье лечения за 10 монет",
-            "купить зелье опыта ха 30 монет",
-            "выйти из лавки в хаб",
-            ]
-        option = choose_option(hero, text, options)
-        if option == 0:
-            buy_item(hero, 10, "зелье лечение")
-            return visit_shop(hero)
-        elif option == 1:
-            buy_item(hero, 30, "зелье опыта")
-            return visit_shop(hero)
-        elif option == 2:
-            return visit_hub(hero)
-        input("\nНажмите ENTER чтобы продолжить ")
-
-
-    def visit_casino(hero: list) -> None:
-    text = f"{self.name} приехал в казино. за вами следят охраники. "
-    options = ["сесть за ближайший стол",
-        "выйти из лавки в хаб",
-        ]
-    option = choose_option(hero, text, options)
-    if option == 0:
-        print("вы сели за стол")
-        bet = input("Выберите ставку: ")
-        return play_dice(hero, bet)
-    elif option == 1:
-        return visit_hub(hero)
-        
-    input("\nНажмите ENTER чтобы продолжить ")
+print("здоровье игрока ", p1.name, "; ", p1.hp, "/", p1.max_hp)
+print("здоровье игрока ", p2.name, "; ", p2.hp, "/", p2.max_hp)
